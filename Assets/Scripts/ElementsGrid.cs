@@ -1,63 +1,126 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System;
 using System.Linq;
 
-namespace ElementsGame.Core{
+namespace ElementsGame.Core
+{
     
     public class ElementsGrid   
     {
         public event Action OnWin;
+        public event Action OnUpdated;
 
-        private List<Cube> _cubes = new List<Cube>();
+        private Dictionary<int, Cube> _cubes = new Dictionary<int, Cube>();
+        private Dictionary<Vector2Int, Cube> _cubesByPos = new Dictionary<Vector2Int, Cube>();
+        private List<int> _ids = new List<int>();
 
         private int[,] _typeMatrix;
         private int[,] _idsMatrix;
 
+        private int _xSize, _ySize;
+
         public void Init(int[,] matrix)
         {
+            _xSize = matrix.GetLength(1);
+            _ySize = matrix.GetLength(0);
+
+            _cubes.Clear();
+            _ids.Clear();
+
             // init all cubes
-            for (int y = 0, id = 1; y < matrix.GetLength(0); y++)
+            for (int y = 0, id = 1; y < _ySize; y++)
             {
-                for (int x = 0; x < matrix.GetLength(1); x++)
+                for (int x = 0; x < _xSize; x++)
                 {
                     if (matrix[y, x] == 0)
                     {
                         continue;
                     }
 
-                    _cubes.Add(new Cube(id, matrix[y, x], new Vector2Int(x, y)));
-                    
+                    _cubes.Add(id, 
+                        new Cube(id, matrix[y, x], new Vector2Int(x, y), new Vector2Int(_xSize, _ySize)));
+                    _ids.Add(id);
                     id++;
                 }
             }
 
             // init cubes' neighbours
-            for (int i = 0; i < _cubes.Count; i++){
-                _cubes[i].FindNeighbours(_cubes);
-            }
+            UpdateNeighbours();
 
             // set ids matrix dimension
-            _idsMatrix = new int[matrix.GetLength(0), matrix.GetLength(1)];
+            _idsMatrix = new int[_xSize, _ySize];
             // set type matrix demension
-            _typeMatrix = new int[matrix.GetLength(0), matrix.GetLength(1)];
+            _typeMatrix = new int[_xSize, _ySize];
         }
 
-        public bool Move(int cubeId, MoveType moveType)
-        {
-            return false;
+        // this method may be implemented through dictionary with pos keys
+        private void UpdateNeighbours(){
+            UpdatePosDict();
+            for (int i = 0; i < _ids.Count; i++)
+            {
+                Cube cube = _cubes[_ids[i]];
+                cube.FindNeighbours(_cubesByPos);
+            }
+        }
+
+        private void UpdatePosDict(){
+            _cubesByPos.Clear();
+            for(int i = 0; i < _ids.Count; i++){
+                Cube cube = _cubes[_ids[i]];
+                _cubesByPos.Add(cube.Pos, cube);
+            }
+        }
+
+        public int GetIdForPos(Vector2Int pos)
+        { 
+            int resultId = -1;
+            if(_cubesByPos.TryGetValue(pos, out Cube cube)){
+                resultId = cube.Id;
+            }
+
+            return resultId;
+        }
+
+        public bool TryToMoveOnPos(Vector2Int pos, MoveType move){
+            int id = GetIdForPos(pos);
+            return Move(id, move);
+        }
+
+        private bool Move(int cubeId, MoveType move)
+        {   
+            if(_cubes.TryGetValue(cubeId, out Cube cube)){
+                return false;
+            }
+
+            bool isMoved = cube.Move(move);
+
+            if(isMoved){
+                Normalize();
+                OnUpdated?.Invoke();
+            }
+
+            return isMoved;
         }
 
         private void Normalize()
         {
+            UpdateNeighbours();
+            IEnumerable<Cube> normalizedCubes = _cubes.Values.Where(a => !a.IsNormalized);
 
+            if(normalizedCubes.Count() > 0)
+            {
+                foreach (Cube cube in normalizedCubes){
+                    cube.Move(MoveType.Down);
+                }
+                Normalize();
+            }
         }
 
         public int[,] GetIdsMatrix(){
             ResetMatrix(ref _idsMatrix);
-            for(int i = 0; i < _cubes.Count; i++){
-                Cube cube = _cubes[i];
+            for(int i = 0; i < _ids.Count; i++){
+                Cube cube = _cubes[_ids[i]];
                 Vector2Int coords = cube.Pos;
                 int id = cube.Id;
 
@@ -68,9 +131,9 @@ namespace ElementsGame.Core{
 
         public int[,] GetTypeMatrix(){
             ResetMatrix(ref _typeMatrix);
-            for (int i = 0; i < _cubes.Count; i++)
+            for (int i = 0; i < _ids.Count; i++)
             {
-                Cube cube = _cubes[i];
+                Cube cube = _cubes[_ids[i]];
                 Vector2Int coords = cube.Pos;
                 int type = cube.Type;
 
@@ -80,59 +143,20 @@ namespace ElementsGame.Core{
         }
 
         private void ResetMatrix(ref int[,] matrix){
-            for (int y = 0; y < matrix.GetLength(0); y++){
-                for (int x = 0; x < matrix.GetLength(1); x++){
+            for (int y = 0; y < _ySize; y++){
+                for (int x = 0; x < _xSize; x++){
                     matrix[y,x] = 0;
                 }
             }
         }
-
-        private bool IsCanMove(int cubeId, MoveType move){
-            throw new NotImplementedException();
-        }
     }
 
-    public class Cube
+    public enum MoveType
     {
-        private int _id;
-        private Vector2Int _pos;
-        private int _type;
-
-        // neighbour cubes
-        private Cube _up;
-        private Cube _right;
-        private Cube _down;
-        private Cube _left;
-
-        public Vector2Int Pos => _pos;
-        public int Id => _id;
-        public int Type => _type;
-
-        public Cube(int id, int type, Vector2Int pos)
-        {
-            _id = id;
-            _type = type;
-            _pos = pos;
-        }
-
-        public void FindNeighbours(IEnumerable<Cube> cubes){
-            Vector2Int left = _pos + Vector2Int.left;
-            Vector2Int right = _pos + Vector2Int.right;
-            Vector2Int up = _pos + Vector2Int.up;
-            Vector2Int down = _pos + Vector2Int.down;
-
-            _left = cubes.FirstOrDefault(a => a._pos == left);
-            _right = cubes.FirstOrDefault(a => a._pos == right);
-            _up = cubes.FirstOrDefault(a => a._pos == up);
-            _down = cubes.FirstOrDefault(a => a._pos == down);
-        }
-    }
-
-    public enum MoveType{
-        MoveUp = 0,
-        MoveRight = 1,
-        MoveDown = 2,
-        MoveLeft = 3,
+        Up = 0,
+        Right = 1,
+        Down = 2,
+        Left = 3,
     }
 }
 

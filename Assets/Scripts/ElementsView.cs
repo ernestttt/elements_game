@@ -8,6 +8,7 @@ namespace ElementsGame.View
 {
     public class ElementsView : MonoBehaviour
     {
+        // can be configed
         [SerializeField] private float _cellSize = 1f;
         [SerializeField] private ViewBlock _viewBlockPrefab;
         [Header("Debug"), SerializeField] private bool _isShowGrid = true;
@@ -30,7 +31,8 @@ namespace ElementsGame.View
             SetBlocksPos();
         }
 
-        private void SetBlocksPos(){
+        private void SetBlocksPos()
+        {
             int[,] idMatrix = _grid.GetIdsMatrix();
 
             for (int y = 0; y < idMatrix.GetLength(0); y++)
