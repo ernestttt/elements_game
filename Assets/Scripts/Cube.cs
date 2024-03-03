@@ -31,7 +31,7 @@ namespace ElementsGame.Core
             _gridSize = gridSize;
         }
 
-        public void FindNeighbours(IDictionary<Vector2Int, Square> cubes)
+        public void FindNeighbours(IDictionary<Vector2Int, Square> squares)
         {
             ResetNeighbours();
             Vector2Int left = _pos + Vector2Int.left;
@@ -39,21 +39,25 @@ namespace ElementsGame.Core
             Vector2Int up = _pos + Vector2Int.up;
             Vector2Int down = _pos + Vector2Int.down;
             
-            if(cubes.TryGetValue(left, out Square cubeLeft))
+            if(squares.TryGetValue(left, out Square cubeLeft))
             {
                 _left = cubeLeft;
             }
-            if (cubes.TryGetValue(right, out Square cubeRight))
+            if (squares.TryGetValue(right, out Square cubeRight))
             {
                 _right = cubeRight;
             }
-            if (cubes.TryGetValue(up, out Square cubeUp))
+            if (squares.TryGetValue(up, out Square cubeUp))
             {
                 _up = cubeUp;
             }
-            if (cubes.TryGetValue(down, out Square cubeDown))
+            if (squares.TryGetValue(down, out Square cubeDown))
             {
                 _down = cubeDown;
+            }
+
+            if(_down == this || _right == this || _left == this || _up == this){
+                throw new System.Exception("Our neighbour point is this");
             }
         }
 

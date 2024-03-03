@@ -61,6 +61,7 @@ namespace ElementsGame.Core
             }
         }
 
+        // should optimize this method
         private void UpdateSquares(){
             UpdateIds();
             UpdatePosDict();
@@ -104,7 +105,7 @@ namespace ElementsGame.Core
 
             if(isMoved){
                 UpdateSquares();
-                //Normalize();
+                Normalize();
                 OnUpdated?.Invoke();
             }
 
@@ -120,6 +121,7 @@ namespace ElementsGame.Core
             {
                 foreach (Square cube in normalizedSquares){
                     cube.Move(MoveType.Down);
+                    UpdateSquares();
                 }
 
                 normalizedSquares = _squares.Values.Where(a => !a.IsNormalized);
