@@ -135,6 +135,12 @@ namespace ElementsGame.Core
             return isNormalize;
         }
 
+        public bool Match3(){
+            bool isMatch3 = false;
+
+            return isMatch3;
+        }
+
         public int[,] GetIdsMatrix(){
             ResetMatrix(ref _idsMatrix);
             for(int i = 0; i < _ids.Count; i++){

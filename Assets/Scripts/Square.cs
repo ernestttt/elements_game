@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace ElementsGame.Core
@@ -22,6 +23,10 @@ namespace ElementsGame.Core
 
         // if pos.y is equal to zero than it's the fist row
         public bool IsNormalized => _pos.y == 0 || (_down != null && _down.IsNormalized);
+
+        public bool IsVisited { get; private set; }
+
+        public int MatchId {get; private set; } = -1;
 
         public Square(int id, int type, Vector2Int startPos, Vector2Int gridSize)
         {
@@ -196,5 +201,112 @@ namespace ElementsGame.Core
 
             return true;
         }
+
+        public void ResetMatch(){
+            IsVisited = false;
+            MatchId = -1;
+        }
+
+        public bool IsMatch3(){
+            List<Vector2Int> positions = new List<Vector2Int>();
+            FillGroupRecursive(_type, ref positions);
+            return IsMatch3(positions);
+        }
+
+        private static bool IsMatch3(List<Vector2Int> positions){
+            return IsMatchY(positions) || IsMatchX(positions);
+        }
+
+        private static bool IsMatchX(List<Vector2Int> positions)
+        {
+            bool isMatchX = false;
+            int minX = positions.Select(a => a.x).Min();
+            int maxX = positions.Select(a => a.x).Max();
+
+            for (int x = minX; x <= maxX; x++)
+            {
+                int[] yCoords = positions.Where(a => a.x == x).Select(a => a.y).OrderBy(a => a).ToArray();
+                if (yCoords.Length < 3)
+                {
+                    continue;
+                }
+
+                for (int i = 1, count = 0; i < yCoords.Length; i++)
+                {
+                    if (yCoords[i] == yCoords[i - 1] + 1)
+                    {
+                        count++;
+                    }
+
+
+                    if (count == 3)
+                    {
+                        isMatchX = true;
+                        break;
+                    }
+                }
+
+                if (isMatchX)
+                {
+                    break;
+                }
+
+            }
+
+            return isMatchX;
+        }
+
+        private static bool IsMatchY(List<Vector2Int> positions)
+        {
+            bool isMatchY = false;
+            int minY = positions.Select(a => a.y).Min();
+            int maxY = positions.Select(a => a.y).Max();
+
+            for (int y = minY; y <= maxY; y++)
+            {
+                int[] xCoords = positions.Where(a => a.y == y).Select(a => a.x).OrderBy(a => a).ToArray();
+                if (xCoords.Count() < 3)
+                {
+                    continue;
+                }
+
+                for (int i = 1, count = 0; i < xCoords.Length; i++)
+                {
+                    if (xCoords[i] == xCoords[i - 1] + 1)
+                    {
+                        count++;
+                    }
+
+
+                    if (count == 3)
+                    {
+                        isMatchY = true;
+                        break;
+                    }
+                }
+
+                if (isMatchY)
+                {
+                    break;
+                }
+
+            }
+
+            return isMatchY;
+        }
+
+        private void FillGroupRecursive(int type , ref List<Vector2Int> positions){
+            if(type != _type || IsVisited)   return;
+
+            IsVisited = true;
+
+            positions.Add(_pos);
+
+            _down?.FillGroupRecursive(type, ref positions);
+            _up?.FillGroupRecursive(type, ref positions);
+            _left?.FillGroupRecursive(type, ref positions);
+            _right?.FillGroupRecursive(type, ref positions);
+        }
+
     }
 }
