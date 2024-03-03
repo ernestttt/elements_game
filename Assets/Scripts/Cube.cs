@@ -80,13 +80,12 @@ namespace ElementsGame.Core
 
         private bool IsCanMove(MoveType move){
             Vector2Int cubePos = _pos;
-            Vector2Int moveVector = Vector2Int.zero;
 
             if(move == MoveType.Up && _up == null){
                 return false;
             }
 
-            moveVector = GetIncrementVector(move);
+            Vector2Int moveVector = GetIncrementVector(move);
 
             Vector2Int nextCubePos = cubePos + moveVector;
 
