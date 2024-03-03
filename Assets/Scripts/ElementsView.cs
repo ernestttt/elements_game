@@ -27,6 +27,12 @@ namespace ElementsGame.View
             _collider = GetComponent<BoxCollider2D>();
         }
 
+        private void Update(){
+            if(_viewBlocks.Values.Any(a => a.IsUpdated))    return;
+
+            _grid.Normalize();
+        }
+
         public void Init(ElementsGrid grid)
         {
             _grid = grid;
@@ -58,7 +64,7 @@ namespace ElementsGame.View
                     int id = ids[y, x];
                     ViewBlock block = _viewBlocks[id];
                     Vector3 pos = _posMatrix[y, x];
-                    block.SetPos(pos);
+                    block.SetTargetPos(pos);
                 }
             }
         }

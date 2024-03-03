@@ -101,11 +101,11 @@ namespace ElementsGame.Core
             if(!_squares.TryGetValue(cubeId, out Square square)){
                 return false;
             }
-            bool isMoved = square.Move(move);
+            bool isMoved = square.IsNormalized && square.Move(move);
 
             if(isMoved){
                 UpdateSquares();
-                Normalize();
+                // Normalize();
                 OnUpdated?.Invoke();
             }
 
@@ -113,10 +113,10 @@ namespace ElementsGame.Core
         }
 
 
-
-        private void Normalize()
+        public bool Normalize()
         {
             IEnumerable<Square> normalizedSquares = _squares.Values.Where(a => !a.IsNormalized);
+            bool isNormalize = normalizedSquares.Count() > 0;
             while(normalizedSquares.Count() > 0)
             {
                 foreach (Square cube in normalizedSquares){
@@ -126,6 +126,13 @@ namespace ElementsGame.Core
 
                 normalizedSquares = _squares.Values.Where(a => !a.IsNormalized);
             }
+
+            if(isNormalize)
+            {
+                OnUpdated?.Invoke();
+            }
+            
+            return isNormalize;
         }
 
         public int[,] GetIdsMatrix(){
