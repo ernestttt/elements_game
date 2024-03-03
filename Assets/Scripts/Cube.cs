@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace ElementsGame.Core
 {
-    public class Cube
+    public class Square
     {
         private int _id;
         private Vector2Int _pos;
@@ -11,10 +11,10 @@ namespace ElementsGame.Core
         private Vector2Int _gridSize;
 
         // neighbour cubes
-        private Cube _up;
-        private Cube _right;
-        private Cube _down;
-        private Cube _left;
+        private Square _up;
+        private Square _right;
+        private Square _down;
+        private Square _left;
 
         public Vector2Int Pos => _pos;
         public int Id => _id;
@@ -23,7 +23,7 @@ namespace ElementsGame.Core
         // if pos.y is equal to zero than it's the fist row
         public bool IsNormalized => _pos.y == 0 || (_down != null && _down.IsNormalized);
 
-        public Cube(int id, int type, Vector2Int startPos, Vector2Int gridSize)
+        public Square(int id, int type, Vector2Int startPos, Vector2Int gridSize)
         {
             _id = id;
             _type = type;
@@ -31,29 +31,37 @@ namespace ElementsGame.Core
             _gridSize = gridSize;
         }
 
-        public void FindNeighbours(IDictionary<Vector2Int, Cube> cubes)
+        public void FindNeighbours(IDictionary<Vector2Int, Square> cubes)
         {
+            ResetNeighbours();
             Vector2Int left = _pos + Vector2Int.left;
             Vector2Int right = _pos + Vector2Int.right;
             Vector2Int up = _pos + Vector2Int.up;
             Vector2Int down = _pos + Vector2Int.down;
             
-            if(cubes.TryGetValue(left, out Cube cubeLeft))
+            if(cubes.TryGetValue(left, out Square cubeLeft))
             {
                 _left = cubeLeft;
             }
-            if (cubes.TryGetValue(right, out Cube cubeRight))
+            if (cubes.TryGetValue(right, out Square cubeRight))
             {
                 _right = cubeRight;
             }
-            if (cubes.TryGetValue(up, out Cube cubeUp))
+            if (cubes.TryGetValue(up, out Square cubeUp))
             {
                 _up = cubeUp;
             }
-            if (cubes.TryGetValue(down, out Cube cubeDown))
+            if (cubes.TryGetValue(down, out Square cubeDown))
             {
                 _down = cubeDown;
             }
+        }
+
+        private void ResetNeighbours(){
+            _up = null;
+            _right = null;
+            _down = null;
+            _left = null;
         }
 
         private Vector2Int GetIncrementVector(MoveType move){
@@ -98,8 +106,8 @@ namespace ElementsGame.Core
             return false;
         }
 
-        private Cube FindNeighbour(MoveType move){
-            Cube neighbour = null;
+        private Square FindNeighbour(MoveType move){
+            Square neighbour = null;
 
             switch (move)
             {
@@ -121,19 +129,19 @@ namespace ElementsGame.Core
         }
 
         // maybe this method can be deleted
-        private void ExchangeWith(Cube neighbour, MoveType move){
+        private void ExchangeWith(Square neighbour, MoveType move){
 
             // neighbour neighbours
-            Cube neighbourUp = neighbour._up;
-            Cube neighbourDown = neighbour._down;
-            Cube neighbourLeft = neighbour._left;
-            Cube neighbourRight = neighbour._right;
+            Square neighbourUp = neighbour._up;
+            Square neighbourDown = neighbour._down;
+            Square neighbourLeft = neighbour._left;
+            Square neighbourRight = neighbour._right;
 
             // our neighbours
-            Cube ourUp = _up;
-            Cube ourDown = _down;
-            Cube ourLeft = _left;
-            Cube ourRight = _right;
+            Square ourUp = _up;
+            Square ourDown = _down;
+            Square ourLeft = _left;
+            Square ourRight = _right;
 
             // update neighbours, there may be the case when our neighbour may be the object himself
             neighbour._up = ourUp;
@@ -171,7 +179,7 @@ namespace ElementsGame.Core
         public bool Move(MoveType move){
             if(!IsCanMove(move)) return false;
 
-            Cube neighbour = FindNeighbour(move);
+            Square neighbour = FindNeighbour(move);
 
             if (neighbour != null)
             {

@@ -39,6 +39,28 @@ namespace ElementsGame.View
             InitViewBlocks();
             SetBlocksPos();
             InitCollider();
+
+            _grid.OnUpdated += UpdateGrid;
+        }
+
+        private void UpdateGrid()
+        {
+            int[,] ids = _grid.GetIdsMatrix();
+
+            for (int y = 0; y < ids.GetLength(0); y++)
+            {
+                for (int x = 0; x < ids.GetLength(1); x++)
+                {
+                    if(ids[y, x] == 0){
+                        continue;
+                    }
+
+                    int id = ids[y, x];
+                    ViewBlock block = _viewBlocks[id];
+                    Vector3 pos = _posMatrix[y, x];
+                    block.SetPos(pos);
+                }
+            }
         }
 
         public Vector2Int GetGridCoords(Vector3 pos){

@@ -305,7 +305,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _elementsView: {fileID: 1253341083}
-  _input: {fileID: 0}
+  _input: {fileID: 1471354743}
 --- !u!1 &1253341081
 GameObject:
   m_ObjectHideFlags: 0
@@ -444,6 +444,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   _gridView: {fileID: 1253341083}
+  _movementThreshold: 1
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0

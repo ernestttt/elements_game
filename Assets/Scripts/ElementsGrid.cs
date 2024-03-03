@@ -11,8 +11,8 @@ namespace ElementsGame.Core
         public event Action OnWin;
         public event Action OnUpdated;
 
-        private Dictionary<int, Cube> _cubes = new Dictionary<int, Cube>();
-        private Dictionary<Vector2Int, Cube> _cubesByPos = new Dictionary<Vector2Int, Cube>();
+        private Dictionary<int, Square> _squares = new Dictionary<int, Square>();
+        private Dictionary<Vector2Int, Square> _squaresByPos = new Dictionary<Vector2Int, Square>();
         private List<int> _ids = new List<int>();
 
         private int[,] _typeMatrix;
@@ -25,7 +25,7 @@ namespace ElementsGame.Core
             _xSize = matrix.GetLength(1);
             _ySize = matrix.GetLength(0);
 
-            _cubes.Clear();
+            _squares.Clear();
             _ids.Clear();
 
             // init all cubes
@@ -38,15 +38,14 @@ namespace ElementsGame.Core
                         continue;
                     }
 
-                    _cubes.Add(id, 
-                        new Cube(id, matrix[y, x], new Vector2Int(x, y), new Vector2Int(_xSize, _ySize)));
-                    _ids.Add(id);
+                    _squares.Add(id, 
+                        new Square(id, matrix[y, x], new Vector2Int(x, y), new Vector2Int(_xSize, _ySize)));
                     id++;
                 }
             }
 
             // init cubes' neighbours
-            UpdateNeighbours();
+            UpdateSquares();
 
             // set ids matrix dimension
             _idsMatrix = new int[_xSize, _ySize];
@@ -54,29 +53,38 @@ namespace ElementsGame.Core
             _typeMatrix = new int[_xSize, _ySize];
         }
 
-        // this method may be implemented through dictionary with pos keys
         private void UpdateNeighbours(){
-            UpdatePosDict();
             for (int i = 0; i < _ids.Count; i++)
             {
-                Cube cube = _cubes[_ids[i]];
-                cube.FindNeighbours(_cubesByPos);
+                Square cube = _squares[_ids[i]];
+                cube.FindNeighbours(_squaresByPos);
             }
         }
 
+        private void UpdateSquares(){
+            UpdateIds();
+            UpdatePosDict();
+            UpdateNeighbours();
+        }
+
+        private void UpdateIds()
+        {
+            _ids = _squares.Keys.ToList();
+        }
+
         private void UpdatePosDict(){
-            _cubesByPos.Clear();
+            _squaresByPos.Clear();
             for(int i = 0; i < _ids.Count; i++){
-                Cube cube = _cubes[_ids[i]];
-                _cubesByPos.Add(cube.Pos, cube);
+                Square cube = _squares[_ids[i]];
+                _squaresByPos.Add(cube.Pos, cube);
             }
         }
 
         public int GetIdForPos(Vector2Int pos)
         { 
             int resultId = -1;
-            if(_cubesByPos.TryGetValue(pos, out Cube cube)){
-                resultId = cube.Id;
+            if(_squaresByPos.TryGetValue(pos, out Square square)){
+                resultId = square.Id;
             }
 
             return resultId;
@@ -89,40 +97,41 @@ namespace ElementsGame.Core
 
         private bool Move(int cubeId, MoveType move)
         {   
-            if(_cubes.TryGetValue(cubeId, out Cube cube)){
+            if(!_squares.TryGetValue(cubeId, out Square square)){
                 return false;
             }
-
-            bool isMoved = cube.Move(move);
+            bool isMoved = square.Move(move);
 
             if(isMoved){
-                Normalize();
+                UpdateSquares();
+                //Normalize();
                 OnUpdated?.Invoke();
             }
 
             return isMoved;
         }
 
+
+
         private void Normalize()
         {
-            UpdateNeighbours();
-            IEnumerable<Cube> normalizedCubes = _cubes.Values.Where(a => !a.IsNormalized);
-
-            if(normalizedCubes.Count() > 0)
+            IEnumerable<Square> normalizedSquares = _squares.Values.Where(a => !a.IsNormalized);
+            while(normalizedSquares.Count() > 0)
             {
-                foreach (Cube cube in normalizedCubes){
+                foreach (Square cube in normalizedSquares){
                     cube.Move(MoveType.Down);
                 }
-                Normalize();
+
+                normalizedSquares = _squares.Values.Where(a => !a.IsNormalized);
             }
         }
 
         public int[,] GetIdsMatrix(){
             ResetMatrix(ref _idsMatrix);
             for(int i = 0; i < _ids.Count; i++){
-                Cube cube = _cubes[_ids[i]];
-                Vector2Int coords = cube.Pos;
-                int id = cube.Id;
+                Square square = _squares[_ids[i]];
+                Vector2Int coords = square.Pos;
+                int id = square.Id;
 
                 _idsMatrix[coords.y, coords.x] = id;
             }
@@ -133,9 +142,9 @@ namespace ElementsGame.Core
             ResetMatrix(ref _typeMatrix);
             for (int i = 0; i < _ids.Count; i++)
             {
-                Cube cube = _cubes[_ids[i]];
-                Vector2Int coords = cube.Pos;
-                int type = cube.Type;
+                Square square = _squares[_ids[i]];
+                Vector2Int coords = square.Pos;
+                int type = square.Type;
 
                 _typeMatrix[coords.y, coords.x] = type;
             }
