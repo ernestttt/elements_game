@@ -22,11 +22,12 @@ namespace ElementsGame.Core
         public int Type => _type;
 
         // if pos.y is equal to zero than it's the fist row
-        public bool IsNormalized => _pos.y == 0 || (_down != null && _down.IsNormalized);
+        public bool IsNormalized => _pos.y == 0 || (_down != null && _down != this && _down.IsNormalized);
 
+        // hide this property, make it variable
         public bool IsVisited { get; private set; }
 
-        public int MatchId {get; private set; } = -1;
+        private bool _isDestroyed = false;
 
         public Square(int id, int type, Vector2Int startPos, Vector2Int gridSize)
         {
@@ -99,6 +100,11 @@ namespace ElementsGame.Core
             Vector2Int cubePos = _pos;
 
             if(move == MoveType.Up && _up == null){
+                return false;
+            }
+
+            Square neigbour = FindNeighbour(move);
+            if(neigbour != null && neigbour._isDestroyed){
                 return false;
             }
 
@@ -204,16 +210,18 @@ namespace ElementsGame.Core
 
         public void ResetMatch(){
             IsVisited = false;
-            MatchId = -1;
         }
 
-        public bool IsMatch3(){
-            List<Vector2Int> positions = new List<Vector2Int>();
-            FillGroupRecursive(_type, ref positions);
-            return IsMatch3(positions);
+        public List<Square> GetSquaresGroup()
+        {
+            List<Square> squares = new List<Square>();
+            FillGroupRecursive(_type, ref squares);
+            return squares;
         }
 
-        private static bool IsMatch3(List<Vector2Int> positions){
+        public bool IsMatch3(List<Square> squares){
+
+            List<Vector2Int> positions = squares.Select(a => a._pos).ToList();
             return IsMatchY(positions) || IsMatchX(positions);
         }
 
@@ -237,9 +245,12 @@ namespace ElementsGame.Core
                     {
                         count++;
                     }
+                    else{
+                        count = 0;
+                    }
 
 
-                    if (count == 3)
+                    if (count == 2)
                     {
                         isMatchX = true;
                         break;
@@ -276,9 +287,12 @@ namespace ElementsGame.Core
                     {
                         count++;
                     }
+                    else
+                    {
+                        count = 0;
+                    }
 
-
-                    if (count == 3)
+                    if (count == 2)
                     {
                         isMatchY = true;
                         break;
@@ -295,17 +309,23 @@ namespace ElementsGame.Core
             return isMatchY;
         }
 
-        private void FillGroupRecursive(int type , ref List<Vector2Int> positions){
+        public void MarkAsDestroyed()
+        {
+            _isDestroyed = true;
+        }
+
+        private void FillGroupRecursive(int type , ref List<Square> squares)
+        {
             if(type != _type || IsVisited)   return;
 
             IsVisited = true;
 
-            positions.Add(_pos);
+            squares.Add(this);
 
-            _down?.FillGroupRecursive(type, ref positions);
-            _up?.FillGroupRecursive(type, ref positions);
-            _left?.FillGroupRecursive(type, ref positions);
-            _right?.FillGroupRecursive(type, ref positions);
+            _down?.FillGroupRecursive(type, ref squares);
+            _up?.FillGroupRecursive(type, ref squares);
+            _left?.FillGroupRecursive(type, ref squares);
+            _right?.FillGroupRecursive(type, ref squares);
         }
 
     }

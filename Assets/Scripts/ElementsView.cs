@@ -21,7 +21,9 @@ namespace ElementsGame.View
 
         private BoxCollider2D _collider;
 
-        private int _xSize, _ySize;
+        private int _xSize, _ySize; 
+
+        private bool _isUpdated = false;
 
         private void Awake() {
             _collider = GetComponent<BoxCollider2D>();
@@ -30,7 +32,10 @@ namespace ElementsGame.View
         private void Update(){
             if(_viewBlocks.Values.Any(a => a.IsUpdated))    return;
 
-            _grid.Normalize();
+            if (_isUpdated && !_grid.Normalize() && !_grid.UpdateMatch3())
+            {
+                _isUpdated = false;
+            }
         }
 
         public void Init(ElementsGrid grid)
@@ -46,12 +51,34 @@ namespace ElementsGame.View
             SetBlocksPos();
             InitCollider();
 
-            _grid.OnUpdated += UpdateGrid;
+            _grid.OnUpdated += NormalizeGrid;
+            _grid.OnMatched += MatchGrid;
+            _grid.OnWin += OnWinHandler;
+            _grid.OnLoose += OnLooseHandler;
         }
 
-        private void UpdateGrid()
+        private void OnWinHandler(){
+            Debug.Log("Win");
+        }
+
+        private void OnLooseHandler()
+        {
+            Debug.Log("Loose");
+        }
+
+        private void MatchGrid(int[] ids)
+        {
+            foreach (int id in ids){
+                ViewBlock block = _viewBlocks[id];
+                block.TurnOff();
+            }
+            _isUpdated = true;
+        }
+
+        private void NormalizeGrid()
         {
             int[,] ids = _grid.GetIdsMatrix();
+
 
             for (int y = 0; y < ids.GetLength(0); y++)
             {
@@ -67,6 +94,8 @@ namespace ElementsGame.View
                     block.SetTargetPos(pos);
                 }
             }
+
+            _isUpdated = true;
         }
 
         public Vector2Int GetGridCoords(Vector3 pos){

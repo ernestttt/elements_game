@@ -9,7 +9,9 @@ namespace ElementsGame.Core
     public class ElementsGrid   
     {
         public event Action OnWin;
+        public event Action OnLoose;
         public event Action OnUpdated;
+        public event Action<int[]> OnMatched;
 
         private Dictionary<int, Square> _squares = new Dictionary<int, Square>();
         private Dictionary<Vector2Int, Square> _squaresByPos = new Dictionary<Vector2Int, Square>();
@@ -105,7 +107,6 @@ namespace ElementsGame.Core
 
             if(isMoved){
                 UpdateSquares();
-                // Normalize();
                 OnUpdated?.Invoke();
             }
 
@@ -115,10 +116,12 @@ namespace ElementsGame.Core
 
         public bool Normalize()
         {
+            UpdateSquares();
             IEnumerable<Square> normalizedSquares = _squares.Values.Where(a => !a.IsNormalized);
-            bool isNormalize = normalizedSquares.Count() > 0;
+            bool isNormalize = false;
             while(normalizedSquares.Count() > 0)
             {
+                isNormalize = true;
                 foreach (Square cube in normalizedSquares){
                     cube.Move(MoveType.Down);
                     UpdateSquares();
@@ -135,10 +138,57 @@ namespace ElementsGame.Core
             return isNormalize;
         }
 
-        public bool Match3(){
+        public bool UpdateMatch3(){
             bool isMatch3 = false;
 
+            List<int> matchedIds = new List<int>();
+
+            while (_squares.Values.Any(a => !a.IsVisited))
+            {
+                Square square = _squares.Values.FirstOrDefault(a => !a.IsVisited);
+                List<Square> squares = square.GetSquaresGroup();
+                if (square.IsMatch3(squares)){
+                    RemoveSquares(squares);
+                    matchedIds.AddRange(squares.Select(a => a.Id));
+                    isMatch3 = true;
+                }
+            }
+
+            ResetSquares();
+            UpdateSquares();
+
+            bool isLoose = _squares.Count != 0 && _squares.Values.GroupBy(a => a.Type).Any(a => a.Count() < 3);
+
+            if (isMatch3)
+            {
+                OnMatched?.Invoke(matchedIds.Distinct().ToArray());
+            }
+            else if(_squares.Count == 0)
+            {
+                OnWin?.Invoke();
+            }
+            else if(isLoose)
+            {
+                OnLoose?.Invoke();
+            }
+
             return isMatch3;
+        }
+
+        private void ResetSquares(){
+            foreach(Square square in _squares.Values){
+                square.ResetMatch();
+            }
+        }
+
+        private void RemoveSquares(List<Square> matchedSquares)
+        {
+            IEnumerable<int> ids = matchedSquares.Select(a => a.Id);
+
+            foreach(int id in ids){
+                _squares[id].MarkAsDestroyed();
+                _squares.Remove(id);
+            }
         }
 
         public int[,] GetIdsMatrix(){
@@ -151,6 +201,10 @@ namespace ElementsGame.Core
                 _idsMatrix[coords.y, coords.x] = id;
             }
             return _idsMatrix;
+        }
+
+        public int[] GetIds(){
+            return _ids.ToArray();
         }
 
         public int[,] GetTypeMatrix(){
