@@ -3,6 +3,7 @@ using ElementsGame.Core;
 using UnityEditor.Experimental.GraphView;
 using UnityEngine;
 using System.Linq;
+using Unity.VisualScripting;
 
 namespace ElementsGame.View
 {
@@ -41,7 +42,14 @@ namespace ElementsGame.View
         public void Init(ElementsGrid grid)
         {
             _grid = grid;
+            _grid.OnUpdated += NormalizeGrid;
+            _grid.OnMatched += MatchGrid;
+            _grid.OnWin += OnWinHandler;
+            _grid.OnLoose += OnLooseHandler;
+            _grid.OnStarted += OnStartedHandler;
+        }
 
+        private void OnStartedHandler(){
             int[,] typeMatrix = _grid.GetTypeMatrix();
             _ySize = typeMatrix.GetLength(0);
             _xSize = typeMatrix.GetLength(1);
@@ -50,20 +58,23 @@ namespace ElementsGame.View
             InitViewBlocks();
             SetBlocksPos();
             InitCollider();
-
-            _grid.OnUpdated += NormalizeGrid;
-            _grid.OnMatched += MatchGrid;
-            _grid.OnWin += OnWinHandler;
-            _grid.OnLoose += OnLooseHandler;
         }
 
         private void OnWinHandler(){
-            Debug.Log("Win");
+            ResetSquares();
         }
 
         private void OnLooseHandler()
         {
-            Debug.Log("Loose");
+            ResetSquares();
+        }
+
+        private void ResetSquares(){
+            foreach(var block in _viewBlocks)
+            {
+                Destroy(block.Value.gameObject);
+            }
+            _viewBlocks.Clear();
         }
 
         private void MatchGrid(int[] ids)
@@ -183,9 +194,9 @@ namespace ElementsGame.View
         private void ShowGridGizmos(){
             if(_posMatrix == null)  return;
 
-            for (int y = 0; y < _posMatrix.GetLength(0); y++)
+            for (int y = 0; y < _posMatrix.GetLength(1); y++)
             {
-                for (int x = 0; x < _posMatrix.GetLength(1); x++)
+                for (int x = 0; x < _posMatrix.GetLength(0); x++)
                 {
                     Vector3 rightTop = transform.position + (Vector3)(_posMatrix[x, y] + new Vector2(1, 1) * _cellSize * 0.5f);
                     Vector3 rightBottom = transform.position + (Vector3)(_posMatrix[x, y] + new Vector2(1, -1) * _cellSize * 0.5f);
@@ -203,8 +214,8 @@ namespace ElementsGame.View
         private void ShowGridPointsGizmos(){
             if(_posMatrix == null)  return;
 
-            for(int y = 0; y < _posMatrix.GetLength(0); y++){
-                for(int x = 0; x < _posMatrix.GetLength(1); x++){
+            for(int y = 0; y < _posMatrix.GetLength(1); y++){
+                for(int x = 0; x < _posMatrix.GetLength(0); x++){
                     Gizmos.DrawSphere(transform.position + (Vector3)_posMatrix[x, y], 0.1f);
                 }
             }

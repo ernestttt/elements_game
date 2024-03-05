@@ -11,6 +11,7 @@ namespace ElementsGame.Core
         public event Action OnWin;
         public event Action OnLoose;
         public event Action OnUpdated;
+        public event Action OnStarted;
         public event Action<int[]> OnMatched;
 
         private Dictionary<int, Square> _squares = new Dictionary<int, Square>();
@@ -50,9 +51,11 @@ namespace ElementsGame.Core
             UpdateSquares();
 
             // set ids matrix dimension
-            _idsMatrix = new int[_xSize, _ySize];
+            _idsMatrix = new int[_ySize, _xSize];
             // set type matrix demension
-            _typeMatrix = new int[_xSize, _ySize];
+            _typeMatrix = new int[_ySize, _xSize];
+
+            OnStarted?.Invoke();
         }
 
         private void UpdateNeighbours(){

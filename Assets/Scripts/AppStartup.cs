@@ -12,22 +12,34 @@ namespace ElementsGame
         [SerializeField] private ElementsInput _input;
         [SerializeField] private GameConfig _config;
 
-        private int[,] _initMatrix = new int[,]{
-        {0,1,2,1,1,0},
-        {0,1,2,1,1,0},
-        {0,2,1,2,2,0},
-        {0,1,1,0,1,0},
-        {0,1,2,0,0,0},
-        {0,0,1,0,0,0},
-    };
+        DataManager dataManager;
+        ElementsGrid grid;
 
         private void Start()
         {
-            ElementsGrid grid = new ElementsGrid();
-            grid.Init(_initMatrix);
+            grid = new ElementsGrid();
+            dataManager = new DataManager(_config);
+
             _elementsView.Init(grid);
             _input.Init(grid);
-            DataManager dataManager = new DataManager(_config);
+
+            grid.OnWin += OnGameEnded;
+            grid.OnLoose += OnGameEnded;
+
+            grid.Init(dataManager.GetLevel());
+        }
+
+        private void OnGameEnded(){
+            int[,] level = dataManager.GetLevel();
+            grid.Init(level);
+        }
+
+        private void OnApplicationPause(bool pauseStatus) 
+        {
+            if(pauseStatus){
+                dataManager.SaveGame(grid.GetTypeMatrix());
+            }
+            
         }
     }
 }
