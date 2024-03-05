@@ -18,6 +18,7 @@ namespace ElementsGame.Data{
         private int levelId = 0;
 
         private string _savedLevelKey = "saved";
+        private string _levelIdStringKey = "levelId";
 
         public DataManager(GameConfig gameConfig)
         {
@@ -40,6 +41,7 @@ namespace ElementsGame.Data{
         {
             if(matrix == null)  return;
             PlayerPrefs.SetInt(_savedLevelKey, 1);
+            PlayerPrefs.SetInt(_levelIdStringKey, levelId);
             using (FileStream file = File.Create($"{_gameConfig.LevelPath}/level_saved"))
             {
                 _bf.Serialize(file, matrix);
@@ -49,6 +51,7 @@ namespace ElementsGame.Data{
         private bool TryToGetSavedLevel(out int[,] matrix){
             matrix = default;
             if (PlayerPrefs.GetInt(_savedLevelKey) == 0) return false;
+            levelId = PlayerPrefs.GetInt(_levelIdStringKey);
             PlayerPrefs.SetInt(_savedLevelKey, 0);
             try
             {
