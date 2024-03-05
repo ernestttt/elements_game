@@ -306,6 +306,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _elementsView: {fileID: 1253341083}
   _input: {fileID: 1471354743}
+  _config: {fileID: 11400000, guid: a8ad9bfeadb1e53438837605ead236de, type: 2}
 --- !u!1 &1253341081
 GameObject:
   m_ObjectHideFlags: 0

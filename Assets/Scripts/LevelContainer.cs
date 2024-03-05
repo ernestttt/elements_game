@@ -11,8 +11,8 @@ namespace ElementsGame.Data{
         private int _id;
         private int[,] _matrix;
 
-        public int Id => _id;
-        public int[,] Matrix => _matrix;
+        [field : NonSerialized] public int Id => _id;
+        [field : NonSerialized] public int[,] Matrix => _matrix;
 
         public LevelContainer(int id, int[,] matrix){
             _id = id;

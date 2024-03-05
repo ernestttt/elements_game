@@ -18,7 +18,7 @@ public class LevelEditor : EditorWindow {
     [MenuItem("Custom/Open Editor")]
     private static void ShowWindow() {
         var window = GetWindow<LevelEditor>();
-        window.titleContent = new GUIContent("Level Editor");
+        window.titleContent = new GUIContent("Level Parser");
         window.Show();
     }
 
@@ -37,7 +37,7 @@ public class LevelEditor : EditorWindow {
     private void SaveLevels(LevelContainer[] levels){
         foreach(var level in levels){
             using (FileStream file = File.Create($"{_levelPath}/level_{level.Id}")){
-                _formatter.Serialize(file, levels);
+                _formatter.Serialize(file, level);
             }
         }
     }
@@ -47,7 +47,6 @@ public class LevelEditor : EditorWindow {
     {
         List<LevelContainer> result = new List<LevelContainer>();
         string text = _levelDescription.text;
-        
         
         List<string> levelsString = new List<string>();
 
