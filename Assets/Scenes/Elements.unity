@@ -352,8 +352,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c96923274fced14c95b061c2d0f40f0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _cellSize: 1
   _viewBlockPrefab: {fileID: 3175289667138246153, guid: bda3215b1b561984ab91fd997473710f, type: 3}
+  _distanceFromLowerEdge: 0.102
   _isShowGrid: 1
 --- !u!61 &1253341084
 BoxCollider2D:

@@ -11,6 +11,7 @@ namespace ElementsGame.View
     public class ElementsView : MonoBehaviour
     {
         [SerializeField] private ViewBlock _viewBlockPrefab;
+        [SerializeField, Range(0, .5f)] private float _distanceFromLowerEdge = .3f;
         [Header("Debug"), SerializeField] private bool _isShowGrid = true;
 
         private float _cellSize;
@@ -58,10 +59,18 @@ namespace ElementsGame.View
             _xSize = typeMatrix.GetLength(1);
 
             AdjustCellCize();
+            AdjustPos();
             InitPosMatrix();
             InitViewBlocks();
             SetBlocksPos();
             InitCollider();
+        }
+
+        private void AdjustPos(){
+            Vector2 lowerBorderPoint = transform.position + Vector3.down * _cellSize * _xSize * 0.5f;
+            Vector2 targetPoint = _camera.ScreenToWorldPoint(new Vector2(Screen.width * 0.5f, Screen.height * _distanceFromLowerEdge));
+            Vector3 diff = targetPoint - lowerBorderPoint;
+            transform.position += diff;
         }
 
         private void AdjustCellCize(){
@@ -196,7 +205,7 @@ namespace ElementsGame.View
                 {
                     float xCoord = (x + 0.5f - _xSize * 0.5f) * _cellSize;
                     float yCoord = (y + 0.5f - _ySize * 0.5f) * _cellSize;
-                    _posMatrix[y, x] = new Vector2(xCoord, yCoord);
+                    _posMatrix[y, x] = (Vector2)transform.position + new Vector2(xCoord, yCoord);
                 }
             }
         }
@@ -218,10 +227,10 @@ namespace ElementsGame.View
             {
                 for (int x = 0; x < _posMatrix.GetLength(0); x++)
                 {
-                    Vector3 rightTop = transform.position + (Vector3)(_posMatrix[x, y] + new Vector2(1, 1) * _cellSize * 0.5f);
-                    Vector3 rightBottom = transform.position + (Vector3)(_posMatrix[x, y] + new Vector2(1, -1) * _cellSize * 0.5f);
-                    Vector3 leftBottom = transform.position + (Vector3)(_posMatrix[x, y] + new Vector2(-1, -1) * _cellSize * 0.5f);
-                    Vector3 leftTop = transform.position + (Vector3)(_posMatrix[x, y] + new Vector2(-1, 1) * _cellSize * 0.5f) ;
+                    Vector3 rightTop = (Vector3)(_posMatrix[x, y] + new Vector2(1, 1) * _cellSize * 0.5f);
+                    Vector3 rightBottom = (Vector3)(_posMatrix[x, y] + new Vector2(1, -1) * _cellSize * 0.5f);
+                    Vector3 leftBottom = (Vector3)(_posMatrix[x, y] + new Vector2(-1, -1) * _cellSize * 0.5f);
+                    Vector3 leftTop = (Vector3)(_posMatrix[x, y] + new Vector2(-1, 1) * _cellSize * 0.5f) ;
                     
                     Gizmos.DrawLine(rightTop, rightBottom);
                     Gizmos.DrawLine(rightBottom, leftBottom);
@@ -236,7 +245,7 @@ namespace ElementsGame.View
 
             for(int y = 0; y < _posMatrix.GetLength(1); y++){
                 for(int x = 0; x < _posMatrix.GetLength(0); x++){
-                    Gizmos.DrawSphere(transform.position + (Vector3)_posMatrix[x, y], 0.1f);
+                    Gizmos.DrawSphere((Vector3)_posMatrix[x, y], 0.1f);
                 }
             }
         }
