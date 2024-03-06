@@ -3,6 +3,7 @@ using ElementsGame.Core;
 using ElementsGame.View;
 using ElementsGame._Input;
 using ElementsGame.Data;
+using ElementsGame.UI;
 
 namespace ElementsGame
 {
@@ -11,6 +12,7 @@ namespace ElementsGame
         [SerializeField] private ElementsView _elementsView;
         [SerializeField] private ElementsInput _input;
         [SerializeField] private GameConfig _config;
+        [SerializeField] private UIManager _ui;
 
         DataManager dataManager;
         ElementsGrid grid;
@@ -19,18 +21,26 @@ namespace ElementsGame
         {
             grid = new ElementsGrid();
             dataManager = new DataManager(_config);
+            
+            _ui.OnNext += NextLevel;
+            _ui.OnRestart += Restart;
 
             _elementsView.Init(grid);
             _input.Init(grid);
 
-            grid.OnWin += OnGameEnded;
-            grid.OnLoose += OnGameEnded;
+            grid.OnWin += NextLevel;
+            grid.OnLoose += NextLevel;
 
-            grid.Init(dataManager.GetLevel());
+            grid.Init(dataManager.GetSameLevel());
         }
 
-        private void OnGameEnded(){
-            int[,] level = dataManager.GetLevel();
+        private void Restart(){
+            int[,] level = dataManager.GetSameLevel();
+            grid.Init(level);
+        }
+
+        private void NextLevel(){
+            int[,] level = dataManager.GetNextLevel();
             grid.Init(level);
         }
 

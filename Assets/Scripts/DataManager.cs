@@ -65,17 +65,25 @@ namespace ElementsGame.Data{
             }
             return true;
         }
-            
-        
 
-        public int[,] GetLevel(){
-            if(TryToGetSavedLevel(out int[,] matrix)){
+        public int[,] GetSameLevel(){
+            if (TryToGetSavedLevel(out int[,] matrix))
+            {
                 return matrix;
             }
 
             int id = _levelIds[levelId];
+            return _levelContainters[id].Matrix;
+        }
+
+        public int[,] GetNextLevel(){
+            if(TryToGetSavedLevel(out int[,] matrix)){
+                return matrix;
+            }
+            
             levelId++;
             levelId %= _levelIds.Length;
+            int id = _levelIds[levelId];
             return _levelContainters[id].Matrix;
         } 
     }

@@ -54,6 +54,7 @@ namespace ElementsGame.View
         }
 
         private void OnStartedHandler(){
+            ResetSquares();
             int[,] typeMatrix = _grid.GetTypeMatrix();
             _ySize = typeMatrix.GetLength(0);
             _xSize = typeMatrix.GetLength(1);
@@ -90,12 +91,12 @@ namespace ElementsGame.View
         }
 
         private void OnWinHandler(){
-            ResetSquares();
+            
         }
 
         private void OnLooseHandler()
         {
-            ResetSquares();
+            
         }
 
         private void ResetSquares(){
