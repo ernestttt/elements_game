@@ -11,7 +11,7 @@ namespace ElementsGame.View
     public class ElementsView : MonoBehaviour
     {
         [SerializeField] private ViewBlock _viewBlockPrefab;
-        [SerializeField, Range(0, .5f)] private float _distanceFromLowerEdge = .3f;
+        [SerializeField] private Transform _groundPoint;
         [Header("Debug"), SerializeField] private bool _isShowGrid = true;
 
         private float _cellSize;
@@ -68,10 +68,9 @@ namespace ElementsGame.View
         }
 
         private void AdjustPos(){
-            Vector2 lowerBorderPoint = transform.position + Vector3.down * _cellSize * _xSize * 0.5f;
-            Vector2 targetPoint = _camera.ScreenToWorldPoint(new Vector2(Screen.width * 0.5f, Screen.height * _distanceFromLowerEdge));
-            Vector3 diff = targetPoint - lowerBorderPoint;
-            transform.position += diff;
+            Vector2 lowerBorderPoint = transform.position + Vector3.down * _cellSize * _ySize * 0.5f;
+            Vector2 diff = (Vector2)_groundPoint.position - lowerBorderPoint;
+            transform.position += (Vector3)diff;
         }
 
         private void AdjustCellCize(){
@@ -132,7 +131,7 @@ namespace ElementsGame.View
                     int id = ids[y, x];
                     ViewBlock block = _viewBlocks[id];
                     Vector3 pos = _posMatrix[y, x];
-                    block.SetTargetPos(pos);
+                    block.SetTargetPos(pos, y * _xSize + x);
                 }
             }
 
@@ -169,7 +168,7 @@ namespace ElementsGame.View
 
                     ViewBlock block = _viewBlocks[id];
                     Vector3 pos = _posMatrix[y ,x];
-                    block.SetPos(pos);
+                    block.SetPos(pos, y * _xSize + x);
                 }
             }
         }
