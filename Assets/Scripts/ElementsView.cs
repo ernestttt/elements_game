@@ -10,10 +10,10 @@ namespace ElementsGame.View
     [RequireComponent(typeof(BoxCollider2D))]
     public class ElementsView : MonoBehaviour
     {
-        // can be configed
-        [SerializeField] private float _cellSize = 1f;
         [SerializeField] private ViewBlock _viewBlockPrefab;
         [Header("Debug"), SerializeField] private bool _isShowGrid = true;
+
+        private float _cellSize;
 
         private ElementsGrid _grid;
         private Vector2[,] _posMatrix;
@@ -26,8 +26,11 @@ namespace ElementsGame.View
 
         private bool _isUpdated = false;
 
+        private Camera _camera;
+
         private void Awake() {
             _collider = GetComponent<BoxCollider2D>();
+            _camera = Camera.main;
         }
 
         private void Update(){
@@ -54,10 +57,27 @@ namespace ElementsGame.View
             _ySize = typeMatrix.GetLength(0);
             _xSize = typeMatrix.GetLength(1);
 
+            AdjustCellCize();
             InitPosMatrix();
             InitViewBlocks();
             SetBlocksPos();
             InitCollider();
+        }
+
+        private void AdjustCellCize(){
+            Vector3 leftBottom = _camera.ScreenToWorldPoint(new Vector2(0, 0));
+            Vector3 rightTop = _camera.ScreenToWorldPoint(new Vector3(Screen.width, Screen.height));
+
+            float widthWorld = rightTop.x - leftBottom.x;
+            float heightWorld = rightTop.y - leftBottom.y;
+
+            widthWorld *= .9f;
+            heightWorld *= .9f;
+
+            float widthSize = widthWorld / _xSize;
+            float heightSize = heightWorld / _ySize;
+
+            _cellSize = Mathf.Min(widthSize, heightSize);
         }
 
         private void OnWinHandler(){
@@ -162,7 +182,7 @@ namespace ElementsGame.View
                     int type = typeMatrix[y, x];
 
                     ViewBlock viewBlock = Instantiate(_viewBlockPrefab, transform);                    
-                    viewBlock.Init(type, new Vector2Int(x, y));
+                    viewBlock.Init(type, new Vector2Int(x, y), _cellSize);
                     _viewBlocks.Add(id, viewBlock);
                 }
             }

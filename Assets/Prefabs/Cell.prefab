@@ -45,8 +45,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4bc2532d6241544468c76b8ba3516f64, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _waterCellPrefab: {fileID: 5348939525337023233, guid: e5a7a05dc3d00a549a9a5a992687971d, type: 3}
-  _fireCellPrefab: {fileID: 1730685757302511347, guid: d5bcd29db94e878449ede683fc8f5834, type: 3}
+  _waterCellPrefab: {fileID: 898860950151181632, guid: e5a7a05dc3d00a549a9a5a992687971d, type: 3}
+  _fireCellPrefab: {fileID: 8652139215068888249, guid: d5bcd29db94e878449ede683fc8f5834, type: 3}
   _destroySign: {fileID: 6864275351344957416}
   _speed: 5
   _destroyTime: 1.5

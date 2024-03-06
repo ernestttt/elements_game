@@ -2,8 +2,8 @@ using UnityEngine;
 
 public class ViewBlock : MonoBehaviour 
 {
-    [SerializeField] private GameObject _waterCellPrefab;
-    [SerializeField] private GameObject _fireCellPrefab;
+    [SerializeField] private SpriteRenderer _waterCellPrefab;
+    [SerializeField] private SpriteRenderer _fireCellPrefab;
     [SerializeField] private GameObject _destroySign;
     [SerializeField] private float _speed = 5f;
     [SerializeField] private float _destroyTime = 1.5f;
@@ -22,21 +22,34 @@ public class ViewBlock : MonoBehaviour
 
     public bool IsUpdated => _isDestroying || _targetPos != transform.position;
 
-    public void Init(int type, Vector2Int pos)
+    public void Init(int type, Vector2Int pos, float cellSize)
     {
         _type = type;
         _pos = pos;
         _destroySign.SetActive(false);
 
-        // temp
-        GameObject prefab = null;
-        if(_type == 1){
+        AdjustTypeView(cellSize);
+    }
+
+    private void AdjustTypeView(float cellSize){
+
+        SpriteRenderer prefab = null;
+        if (_type == 1)
+        {
             prefab = _waterCellPrefab;
         }
-        else if (_type == 2){
+        else if (_type == 2)
+        {
             prefab = _fireCellPrefab;
         }
-        Instantiate(prefab, transform);
+
+        SpriteRenderer sRenderer = Instantiate(prefab, transform);
+
+        float width = sRenderer.size.x;
+        float height = sRenderer.size.y;
+        float viewSize = Mathf.Max(width, height);
+        float scaleFactor = cellSize / viewSize;
+        sRenderer.transform.localScale = Vector3.one * scaleFactor;
     }
 
     public void SetPos(Vector3 pos){
