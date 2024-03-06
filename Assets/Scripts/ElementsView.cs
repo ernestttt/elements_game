@@ -111,7 +111,7 @@ namespace ElementsGame.View
         {
             foreach (int id in ids){
                 ViewBlock block = _viewBlocks[id];
-                block.TurnOff();
+                block.DestroyBlock();
             }
             _isUpdated = true;
         }

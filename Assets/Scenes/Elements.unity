@@ -919,7 +919,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _viewBlockPrefab: {fileID: 3175289667138246153, guid: bda3215b1b561984ab91fd997473710f, type: 3}
   _distanceFromLowerEdge: 0.102
-  _isShowGrid: 1
+  _isShowGrid: 0
 --- !u!61 &1253341084
 BoxCollider2D:
   m_ObjectHideFlags: 0

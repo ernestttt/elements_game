@@ -1,12 +1,13 @@
+using System.Linq;
 using UnityEngine;
 
 public class ViewBlock : MonoBehaviour 
 {
     [SerializeField] private SpriteRenderer _waterCellPrefab;
     [SerializeField] private SpriteRenderer _fireCellPrefab;
-    [SerializeField] private GameObject _destroySign;
     [SerializeField] private float _speed = 5f;
     [SerializeField] private float _destroyTime = 1.5f;
+    [SerializeField] private float _sizeMultiplier = 1.2f;
 
     private int _id;
     private int _type;
@@ -19,14 +20,16 @@ public class ViewBlock : MonoBehaviour
     public Vector2Int Pos => _pos;
 
     private Vector3 _targetPos;
+    private SpriteRenderer _sRenderer;
+    private Animator _animator;
 
     public bool IsUpdated => _isDestroying || _targetPos != transform.position;
+
 
     public void Init(int type, Vector2Int pos, float cellSize)
     {
         _type = type;
         _pos = pos;
-        _destroySign.SetActive(false);
 
         AdjustTypeView(cellSize);
     }
@@ -43,29 +46,34 @@ public class ViewBlock : MonoBehaviour
             prefab = _fireCellPrefab;
         }
 
-        SpriteRenderer sRenderer = Instantiate(prefab, transform);
+        _sRenderer = Instantiate(prefab, transform);
+        _animator = _sRenderer.GetComponent<Animator>();
 
-        float width = sRenderer.size.x;
-        float height = sRenderer.size.y;
+        string name =_animator.GetCurrentAnimatorClipInfo(0).First().clip.name;
+        _animator.Play(name, 0, Random.Range(0, 0.5f));
+
+        float width = _sRenderer.sprite.bounds.size.x;
+        float height = _sRenderer.sprite.bounds.size.y;
         float viewSize = Mathf.Max(width, height);
         float scaleFactor = cellSize / viewSize;
-        sRenderer.transform.localScale = Vector3.one * scaleFactor;
+        _sRenderer.transform.localScale = Vector3.one * scaleFactor * _sizeMultiplier;
     }
 
     public void SetPos(Vector3 pos){
         transform.position = pos;
-        _targetPos = pos;
+        SetTargetPos(pos);
     }
 
     public void SetTargetPos(Vector3 pos){
         _targetPos = pos;
+        _sRenderer.sortingOrder = (int)(pos.y * 1000 + pos.x * 100);
     }
 
-    public void TurnOff()
+    public void DestroyBlock()
     {
-        _destroyEndTime = Time.time + _destroyTime;
         _isDestroying = true;
-        _destroySign.SetActive(true);
+        _animator.SetTrigger("destroy");
+        _destroyEndTime = Time.time + _animator.GetCurrentAnimatorClipInfo(0).Length * 1.5f; ;
     }
 
     private void Update(){
@@ -73,6 +81,7 @@ public class ViewBlock : MonoBehaviour
         {
             _isDestroying = false;
             gameObject.SetActive(false);
+            _animator.enabled = false;
         }
 
         float distance = (_targetPos - transform.position).magnitude;
