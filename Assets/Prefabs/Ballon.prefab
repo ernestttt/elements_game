@@ -106,3 +106,4 @@ MonoBehaviour:
   _ballonSprites:
   - {fileID: 21300000, guid: 3c310443321f0e849880c06b9fa6a5bb, type: 3}
   - {fileID: 21300000, guid: d600038e91dffe84db4a260ffe7c05a4, type: 3}
+  _gameConfig: {fileID: 11400000, guid: a8ad9bfeadb1e53438837605ead236de, type: 2}
