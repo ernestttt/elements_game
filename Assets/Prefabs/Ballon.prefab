@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 7127474329068759008}
   - component: {fileID: 2183902199171673991}
   m_Layer: 0
-  m_Name: Ballon_orange
+  m_Name: Ballon
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -99,3 +99,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _lowestSpeed: 0.3
   _highestSpeed: 1.2
+  _lowScale: 0.4
+  _highScale: 0.8
+  _heightRange: {x: -2, y: 2}
+  _numberOfPeriodsRange: {x: 0, y: 3}
+  _ballonSprites:
+  - {fileID: 21300000, guid: 3c310443321f0e849880c06b9fa6a5bb, type: 3}
+  - {fileID: 21300000, guid: d600038e91dffe84db4a260ffe7c05a4, type: 3}

@@ -11,7 +11,7 @@ namespace ElementsGame.View
     {
         [SerializeField, Range(0, 0.5f)] private float _lowerScreenPoint = .3f;
         [SerializeField] private bool _showLines = false;
-        [SerializeField] private Ballon[] _ballonPrefabs;
+        [SerializeField] private Ballon _ballonPrefab;
         [SerializeField] private float _ballonTimePeriod = 3f;
         [SerializeField, Range(0, 3)] private int _numberOfBallons;
 
@@ -55,7 +55,7 @@ namespace ElementsGame.View
                     Ballon ballon = null;
                 if (_ballons.Count < _numberOfBallons)
                 {
-                    ballon = Instantiate(_ballonPrefabs[Random.Range(0, _ballonPrefabs.Length)], transform);
+                    ballon = Instantiate(_ballonPrefab, transform);
                     _ballons.Add(ballon);
                 }
                 else if(_ballons.Any(a => !a.IsMoving)){
