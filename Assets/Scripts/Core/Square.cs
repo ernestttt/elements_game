@@ -22,7 +22,7 @@ namespace ElementsGame.Core
         public int Type => _type;
 
         // if pos.y is equal to zero than it's the fist row, dangerous recursive property
-        public bool IsNormalized => _pos.y == 0 || (_down != null && _down.IsNormalized);
+        public bool IsNormalized => _pos.y == 0 || (_down != null && !_down._isDestroyed && _down.IsNormalized);
 
         // hide this property, make it variable
         public bool IsVisited { get; private set; }
