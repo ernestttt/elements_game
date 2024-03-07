@@ -4,6 +4,7 @@ using ElementsGame.View;
 using ElementsGame._Input;
 using ElementsGame.Data;
 using ElementsGame.UI;
+using System.Collections;
 
 namespace ElementsGame
 {
@@ -14,39 +15,49 @@ namespace ElementsGame
         [SerializeField] private GameConfig _config;
         [SerializeField] private UIManager _ui;
 
-        DataManager dataManager;
-        ElementsGrid grid;
+        private DataManager dataManager;
+        private ElementsGrid grid;
 
-        private void Start()
+        private void Awake(){
+            Debug.developerConsoleVisible = true;
+            Debug.developerConsoleEnabled = true;
+            Application.targetFrameRate = 60;
+        }
+
+        private IEnumerator Start()
         {
+            yield return null;
+            yield return null;
+            Init();
+        }
+
+        private async void Init(){
             grid = new ElementsGrid();
-            dataManager = new DataManager(_config);
-            
+            dataManager = new DataManager();
+            await dataManager.Init(_config);
+
             _ui.OnNext += NextLevel;
             _ui.OnRestart += Restart;
 
             _elementsView.Init(grid);
             _input.Init(grid);
 
-            grid.OnWin += NextLevel;
-            grid.OnLoose += NextLevel;
-
-            grid.Init(dataManager.GetSameLevel());
+            grid.Init(await dataManager.GetSameLevel());
         }
 
-        private void Restart(){
-            int[,] level = dataManager.GetSameLevel();
+        private async void Restart(){
+            int[,] level = await dataManager.GetSameLevel();
             grid.Init(level);
         }
 
-        private void NextLevel(){
-            int[,] level = dataManager.GetNextLevel();
+        private async void NextLevel(){
+            int[,] level = await dataManager.GetNextLevel();
             grid.Init(level);
         }
 
         private void OnApplicationPause(bool pauseStatus) 
         {
-            if(pauseStatus){
+            if(pauseStatus && dataManager != null){
                 dataManager.SaveGame(grid.GetTypeMatrix());
             }
             

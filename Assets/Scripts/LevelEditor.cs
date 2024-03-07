@@ -1,11 +1,9 @@
+#if UNITY_EDITOR
 using System;
-using System.Linq;
 using UnityEditor;
 using UnityEngine;
-using Object = UnityEngine.Object;
 using ElementsGame.Data;
 using System.Collections.Generic;
-using Unity.VisualScripting;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.IO;
 
@@ -30,12 +28,11 @@ public class LevelEditor : EditorWindow {
             LevelContainer[] levelContainers = ParseLevels();
             SaveLevels(levelContainers);
         }
-
-        _levelPath = Application.dataPath + GUILayout.TextField("/Levels");
     }
 
     private void SaveLevels(LevelContainer[] levels){
-        foreach(var level in levels){
+        _levelPath = Application.dataPath + "/StreamingAssets";
+        foreach (var level in levels){
             using (FileStream file = File.Create($"{_levelPath}/level_{level.Id}")){
                 _formatter.Serialize(file, level);
             }
@@ -122,3 +119,4 @@ public class LevelEditor : EditorWindow {
         return result;
     }
 }
+#endif

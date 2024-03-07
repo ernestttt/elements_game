@@ -14,3 +14,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   _levelPath: /Levels
   _levelIds: 010000000200000003000000
+  _blockTypes:
+  - id: 1
+    prefab: {fileID: 898860950151181632, guid: e5a7a05dc3d00a549a9a5a992687971d, type: 3}
+  - id: 2
+    prefab: {fileID: 8652139215068888249, guid: d5bcd29db94e878449ede683fc8f5834, type: 3}
+  _ballonSprites:
+  - {fileID: 21300000, guid: 3c310443321f0e849880c06b9fa6a5bb, type: 3}
+  - {fileID: 21300000, guid: d600038e91dffe84db4a260ffe7c05a4, type: 3}
