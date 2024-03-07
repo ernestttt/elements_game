@@ -44,7 +44,7 @@ namespace ElementsGame._Input{
                 Vector2 directionOfMove = clickPoint - _startPoint;
                 if (!_isMoved){
                     float distance = directionOfMove.magnitude;
-                    _isMoved = distance > _gridView.CellSize * 0.5f;
+                    _isMoved = distance > _gridView.CellSize * 0.25f;
                 }
                 else{
                     MoveType move = GetMoveTypeByVector(directionOfMove);
